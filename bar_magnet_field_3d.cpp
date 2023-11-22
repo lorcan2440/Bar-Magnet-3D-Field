@@ -2,17 +2,14 @@
 #include <iostream>
 #include <math.h>
 
-const float PERMEABILITY = 4 * 3.14159265359 * 1e-7 * 1;
-
 std::vector<float> GetBarMagnetField(float x, float y, float z,
     float M_0, float X_B, float Y_B, float Z_B) {
 
 	/*
-    Returns the magnetic flux density vector (B_x, B_y, B_z) at a given point (x, y, z).
+    Returns the magnetic field intensity vector (H_x, H_y, H_z) at a given point (x, y, z).
     Calculates for a cuboid-shaped bar magnet with its geometric centre at (0, 0, 0).
     The North and South poles are along the positive and negative y-axes respectively.
-    NOTE: Undefined at the surfaces of the magnet - blows up to infinite magnitude.
-    NOTE: Derivative of B_y is discontinuous.
+    NOTE: Undefined at the surfaces of the magnet.
     Equation source: https://aip.scitation.org/doi/full/10.1063/1.1883308; page 2; eq. 5-7.
 
     Inputs:
@@ -26,16 +23,17 @@ std::vector<float> GetBarMagnetField(float x, float y, float z,
      
      Outputs:
      
-        `(B_x, B_y, B_z)`: B-field vector attached to input point. Units: Tesla
+        `(H_x, H_y, H_z)`: H-field vector attached to input point. Units: A/m
+	Note: B = mu_0 * (H + M).
 	*/
 
-    float scale_factor = PERMEABILITY * M_0 / (4 * 3.14159265359);
+    float scale_factor = M_0 / (4 * 3.14159265359);
     float sum_x = 0;
     float sum_y = 0;
     float sum_z = 0;
-    float B_x;
-    float B_y;
-    float B_z;
+    float H_x;
+    float H_y;
+    float H_z;
 
     for (int k = 1; k <= 2; k++) {
         for (int l = 1; l <= 2; l++) {
@@ -54,11 +52,11 @@ std::vector<float> GetBarMagnetField(float x, float y, float z,
         }
     }
 
-    B_x = scale_factor * sum_x;
-    B_y = -1 * scale_factor * sum_y;
-    B_z = scale_factor * sum_z;
+    H_x = scale_factor * sum_x;
+    H_y = -1 * scale_factor * sum_y;
+    H_z = scale_factor * sum_z;
 
-	return { B_x, B_y, B_z };
+	return { H_x, H_y, H_z };
 }
 
 int main() {
@@ -69,6 +67,6 @@ int main() {
     const float M_0 = 795774.715459;
 
     std::vector<float> field_strength = GetBarMagnetField(x, y, z, M_0, 8, 12, 4);
-    std::cout << "Magnetic Flux Density, B(x, y, z), in Tesla : " << std::endl;
+    std::cout << "Magnetic Field Intensity, H(x, y, z) [A/m]: " << std::endl;
     std::cout << field_strength[0] << ' ' << field_strength[1] << ' ' << field_strength[2] << std::endl;
 }
